@@ -1,0 +1,37 @@
+version: '3'
+services:
+  redis:
+    # 镜像名称以及版本号
+    image: redis:latest
+    # 失败后总是重启
+    restart: always
+    # 自定义容器名
+    container_name: docker_redis
+    # 文件夹以及文件映射
+    volumes:
+      - /home/hanfx/app/redis/datadir:/data
+      # 需要先新建redis.conf文件
+      - /home/hanfx/app/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - /home/hanfx/app/redis/logs:/logs
+    command:
+    # 以配置文件的方式启动
+      redis-server /usr/local/etc/redis/redis.conf
+    ports:
+    # 端口号
+      - '6379:6379'
+    
+  rabbit:
+    image: rabbitmq:3.8-management
+    hostname: rabbit1
+    container_name: rabbit1
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=han123
+    volumes:
+      - /home/hanfx/app/rabbitmq:/var/lib/rabbitmq
+
+  
