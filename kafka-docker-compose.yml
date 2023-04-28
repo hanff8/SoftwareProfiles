@@ -32,7 +32,7 @@ services:
 
       ### broker配置
       # 定义外网访问地址（宿主机ip地址和端口）
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.104:9192
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.100:9192
       # broker.id，必须唯一
       - KAFKA_BROKER_ID=1
     volumes:
@@ -70,7 +70,7 @@ services:
 
       ### broker配置
       # 定义外网访问地址（宿主机ip地址和端口）
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.104:9292
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.100:9292
       # broker.id，必须唯一
       - KAFKA_BROKER_ID=2
     volumes:
@@ -108,7 +108,7 @@ services:
 
       ### broker配置
       # 定义外网访问地址（宿主机ip地址和端口）
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.104:9392
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.100:9392
       # broker.id，必须唯一
       - KAFKA_BROKER_ID=3
     volumes:
