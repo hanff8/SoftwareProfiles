@@ -174,13 +174,4 @@ services:
       # 集群地址
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9092,kafka2:9092,kafka3:9092    
 
-  portainer:
-    image: portainer/portainer
-    container_name: portainer1
-    restart: always
-    ports:
-      - 9000:9000
-    volumes:
-      - /home/hanfx/app/portainer/data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
   
