@@ -56,3 +56,4 @@ zmodule zsh-users/zsh-autosuggestions
 
 zmodule prompt-pwd
 zmodule eriner
+zmodule romkatv/powerlevel10k --use degit

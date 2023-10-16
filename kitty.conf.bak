@@ -2288,6 +2288,6 @@ linux_display_server x11
 #: }}}
 
 # BEGIN_KITTY_THEME
-# 1984 Dark
+# 3024 Night
 include current-theme.conf
 # END_KITTY_THEME
