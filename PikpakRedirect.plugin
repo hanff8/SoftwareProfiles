@@ -1,3 +1,4 @@
 [Rewrite]
-(^https:\/\/api-drive)(\.mypikpak\.com) $1.mypikpak.net 302
-(^https:\/\/dl-[\w-]+)(\.mypikpak\.com) $1.mypikpak.net 302
+#!(^https:\/\/api-drive)(\.mypikpak\.com) $1.mypikpak.net 302
+#!(^https:\/\/dl-[\w-]+)(\.mypikpak\.com) $1.mypikpak.net 302
+(^https?:\/\/.*)(.mypikpak.com) $1.mypikpak.net 302
