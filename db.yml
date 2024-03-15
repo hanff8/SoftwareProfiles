@@ -9,10 +9,10 @@ services:
     container_name: docker_redis
     # 文件夹以及文件映射
     volumes:
-      - /home/hanfx/app/redis/datadir:/data
+      - ${HOME}/app/redis/datadir:/data
       # 需要先新建redis.conf文件
-      - /home/hanfx/app/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
-      - /home/hanfx/app/redis/logs:/logs
+      - ${HOME}/app/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ${HOME}/app/redis/logs:/logs
     command:
     # 以配置文件的方式启动
       redis-server /usr/local/etc/redis/redis.conf
@@ -29,5 +29,5 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - /home/hanfx/app/mysql/data:/var/lib/mysql
-      - /home/hanfx/app/mysql/config:/etc/mysql/conf.d
+      - ${HOME}/app/mysql/data:/var/lib/mysql
+      - ${HOME}/app/mysql/config:/etc/mysql/conf.d

@@ -12,7 +12,7 @@ services:
       - RABBITMQ_DEFAULT_USER=root
       - RABBITMQ_DEFAULT_PASS=han123
     volumes:
-      - /home/hanfx/app/rabbitmq:/var/lib/rabbitmq
+      - ${HOME}/app/rabbitmq:/var/lib/rabbitmq
   kafka1:
     image: bitnami/kafka:3.4.0
     container_name: kafka1
@@ -49,7 +49,7 @@ services:
       # broker.id，必须唯一
       - KAFKA_BROKER_ID=1
     volumes:
-      - /home/hanfx/app/kafka/kafka1/kraft:/bitnami/kafka
+      - ${HOME}/app/kafka/kafka1/kraft:/bitnami/kafka
       - /etc/localtime:/etc/localtime
   kafka2:
     image: bitnami/kafka:3.4.0
@@ -87,7 +87,7 @@ services:
       # broker.id，必须唯一
       - KAFKA_BROKER_ID=2
     volumes:
-      - /home/hanfx/app/kafka/kafka2/kraft:/bitnami/kafka
+      - ${HOME}/app/kafka/kafka2/kraft:/bitnami/kafka
       - /etc/localtime:/etc/localtime
   kafka3:
     image: bitnami/kafka:3.4.0
@@ -125,7 +125,7 @@ services:
       # broker.id，必须唯一
       - KAFKA_BROKER_ID=3
     volumes:
-      - /home/hanfx/app/kafka/kafka3/kraft:/bitnami/kafka
+      - ${HOME}/app/kafka/kafka3/kraft:/bitnami/kafka
       - /etc/localtime:/etc/localtime
     
   kafka-ui:
