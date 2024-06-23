@@ -16,7 +16,7 @@ config.outbounds.map(i => {
     }
 
     if (['香港节点'].includes(i.tag)) {
-        i.outbounds.push(...proxies.map(p => /香港|🇭🇰|HK|hk|HongKong/i.test(p.tag)).map(p => p.tag))
+        i.outbounds.push(...proxies.filter(p => /香港|🇭🇰|HK|hk|HongKong/i.test(p.tag)).map(p => p.tag))
     }
     if (['美国节点'].includes(i.tag)) {
         i.outbounds.push(...proxies.filter(p => /美国|🇺🇸|us|united states/i.test(p.tag)).map(p => p.tag))
