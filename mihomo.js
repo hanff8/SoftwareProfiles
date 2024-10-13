@@ -221,6 +221,20 @@ function main(config) {
             'path': './all.yaml'
         }
     }
+    config['rule-providers'] = {
+        'spotify': {
+            'type': 'http',
+            'behavior': 'classical',
+            'url': 'https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Spotify/Spotify.yaml',
+            'path': './rules/spotify.yaml'
+        },
+        'telegram': {
+            'type': 'http',
+            'behavior': 'classical',
+            'url': 'https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Telegram/Telegram.yaml',
+            'path': './rules/telegram.yaml'
+        }
+    }
     config['proxies'] = [];
     config['rules'] = rules;
     config['dns'] = dnsConfig;

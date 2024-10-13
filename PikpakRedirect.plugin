@@ -1,6 +1,7 @@
 [Rewrite]
-(^https?:\/\/api-drive)(\.mypikpak\.com) $1.mypikpak.net 302
-(^https?:\/\/dl-[\w-]+)(\.mypikpak\.com) $1.mypikpak.net 302
-(^https?:\/\/user)(\.mypikpak.com)(.*auth\/token) $1.mypikpak.net$3 302
-(^https?:\/\/.*)(\.mypikpak.com)(\/api\/stat) $1.mypikpak.net$3 302
-#!(^https?:\/\/.*)(.mypikpak.com) $1.mypikpak.net 302
+#(^https?:\/\/(?!access\.)[\w-]+\.)pikpak\.com(.*) $1mypikpak.net$2 302
+(^https?:\/\/.*)(\.mypikpak\.com)(.*) $1.mypikpak.net$3 302
+[Rule]
+DOMAIN,access.mypikpak.net,Final
+[MITM]
+hostname = *.mypikpak.com
