@@ -2,6 +2,6 @@
 #(^https?:\/\/(?!access\.)[\w-]+\.)pikpak\.com(.*) $1mypikpak.net$2 302
 (^https?:\/\/.*)(\.mypikpak\.com)(.*) $1.mypikpak.net$3 302
 [Rule]
-DOMAIN,access.mypikpak.net,Final
+DOMAIN,access.mypikpak.net,final
 [MITM]
 hostname = *.mypikpak.com
