@@ -1,8 +1,7 @@
 [Rewrite]
 (^https?:\/\/dl-[\w\d-]+)(\.mypikpak\.com)(.*) $1.mypikpak.net$3 302
 [Rule]
-URL-REGEX,^https?\:\/\/.*mypikpak\.com(?!\/s).*$,连接
-URL-REGEX,^https?\:\/\/.*mypikpak\.com(?!\/s|\/drive\/v1\/share).*,连接
+URL-REGEX,^https?\:\/\/.*mypikpak\.com(?!\/s|\/drive\/v1\/share).*,DIRECT
 URL-REGEX.^https?\:\/\/.*mypikpak\.com\/access_controller\/v1.*$,连接
 DOMAIN-SUFFIX,mypikpak.com,DIRECT
 DOMAIN-SUFFIX,mypikpak.net,DIRECT
