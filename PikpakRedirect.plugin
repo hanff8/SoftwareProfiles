@@ -1,10 +1,11 @@
 [Rewrite]
-(^https?:\/\/dl-[\w\d-]+)(\.mypikpak\.com)(.*) $1.mypikpak.net$3 302
+^https?:\/\/.*mypikpak\.com.*$ header-replace User-Agent Unknown
+
 [Rule]
-URL-REGEX,^https?\:\/\/.*mypikpak\.com(?!\/s|\/drive\/v1\/share).*,DIRECT
-URL-REGEX.^https?\:\/\/.*mypikpak\.com\/access_controller\/v1.*$,连接
-DOMAIN-SUFFIX,mypikpak.com,DIRECT
+URL-REGEX,^https?\:\/\/.*mypikpak\.com(?=\/s|\/drive\/v1\/share).*$,连接
+URL-REGEX,^https?\:\/\/.*mypikpak\.com\/access_controller\/v1.*$,连接
 DOMAIN-SUFFIX,mypikpak.net,DIRECT
+DOMAIN-SUFFIX,mypikpak.com,DIRECT
 
 [MITM]
 hostname = *.mypikpak.com,*.mypikpak.net
