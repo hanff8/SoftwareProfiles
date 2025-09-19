@@ -1,0 +1,31 @@
+services:
+  lobe-chat:
+    image: lobehub/lobe-chat
+    container_name: lobe-chat
+    restart: always
+    ports:
+      - '11432:3210'
+    environment:
+      ACCESS_CODE: lobe66
+      OLLAMA_PROXY_URL: http://host.docker.internal:11434/v1
+  sub-store:
+    image: xream/sub-store:2.19.36
+    container_name: sub-store
+    restart: always
+    ports:
+      - '3001:3001'
+      - '3000:3000'
+    environment:
+      SUB_STORE_BACKEND_API_PORT: 3000
+      SUB_STORE_FRONTEND_PORT: 3001
+      SUB_STORE_BACKEND_API_HOST: 
+      SUB_STORE_FRONTEND_HOST: 0.0.0.0
+      SUB_STORE_BACKEND_SYNC_CRON: 55 23 * * *
+    volumes:
+      - ${HOME}/MyContainer/sub-store/data:/opt/app/data
+  metacubexd:
+    container_name: metacubexd
+    image: ghcr.io/metacubex/metacubexd
+    restart: always
+    ports:
+      - '9091:80'
