@@ -1,0 +1,11 @@
+#!name=wetalk
+#!desc=wetalk
+#!icon=https://github.com/Toperlock/Quantumult/raw/main/icon/Doraemon/Doraemon-1025.png
+
+[Script]
+http-request ^https:\/\/api\.wetalkapp\.com\/app\/queryBalanceAndBonus script-path=https://raw.githubusercontent.com/hanff8/SoftwareProfiles/refs/heads/master/scripts/loon/wetalk.js, timeout=60, tag=WeTalk
+
+cron "20 8,20 * * *" script-path=https://raw.githubusercontent.com/hanff8/SoftwareProfiles/refs/heads/master/scripts/loon/wetalk.js, timeout=120, tag=WeTalk签到
+
+[MITM]
+hostname = api.wetalkapp.com
