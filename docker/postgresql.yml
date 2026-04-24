@@ -1,0 +1,32 @@
+services:
+  # 数据库服务
+  db:
+    image: pgvector/pgvector:${POSTGRES_VERSION}
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      # 挂载到父目录，让容器自己管理子目录
+      - postgres_data:/var/lib/postgresql/data
+
+  # pgAdmin 图形化管理界面
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "8080:80" # 访问地址为 http://localhost:8080
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
