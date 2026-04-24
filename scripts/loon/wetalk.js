@@ -393,16 +393,34 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function httpRequest(params) {
+  return new Promise((resolve, reject) => {
+    $httpClient.get(params, (error, response, data) => {
+      if (error) {
+        reject(error); // 失败时走 catch
+      } else {
+        resolve({ response, data }); // 成功时返回结果
+      }
+    });
+  });
+}
+
 function runAccount(acc, index, total) {
   const tag = `[账号${index + 1}/${total} ${acc.alias || acc.id}]`;
   const ua = buildUA(acc.baseUA, acc.uaSeed);
   const headers = buildHeaders(acc.capture, ua);
   const msgs = [tag];
 
+  // function fetchApi(path) {
+  //   return $task.fetch({
+  //     url: buildUrl(path, acc.capture),
+  //     method: "GET",
+  //     headers,
+  //   });
+  // }
   function fetchApi(path) {
-    return $task.fetch({
+    return httpRequest({
       url: buildUrl(path, acc.capture),
-      method: "GET",
       headers,
     });
   }
@@ -443,7 +461,7 @@ function runAccount(acc, index, total) {
     return next();
   }
 
-  return fetchApi("queryBalanceAndBonus")
+  return $httpClient("queryBalanceAndBonus")
     .then((res) => {
       try {
         const d = JSON.parse(res.body);
