@@ -385,7 +385,8 @@ function buildHeaders(capture, ua) {
 }
 
 function notify(title, body) {
-  $notify(scriptName, title, body);
+  //$notify(scriptName, title, body);
+  $notification.post(title, scriptName, body);
 }
 
 function sleep(ms) {
