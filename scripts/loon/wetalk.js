@@ -461,7 +461,7 @@ function runAccount(acc, index, total) {
     return next();
   }
 
-  return $httpClient("queryBalanceAndBonus")
+  return fetchApi("queryBalanceAndBonus")
     .then((res) => {
       try {
         const d = JSON.parse(res.body);
