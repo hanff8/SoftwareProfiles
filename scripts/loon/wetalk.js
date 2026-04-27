@@ -395,11 +395,11 @@ function sleep(ms) {
 
 function httpRequest(params) {
   return new Promise((resolve, reject) => {
-    $httpClient.get(params, (error, response, data) => {
+    $httpClient.get(params, (error, response, body) => {
       if (error) {
         reject(error); // 失败时走 catch
       } else {
-        resolve({ response, data }); // 成功时返回结果
+        resolve({ response, body }); // 成功时返回结果
       }
     });
   });
