@@ -133,11 +133,15 @@
     {
       "type": "api",
       "tag": "sing-box dashboard",
-      "listen": "127.0.0.1",
+      "listen": "0.0.0.0",
       "listen_port": 9091,
       "secret": "",
-      "access_control_allow_origin": ["http://sing-box-dashboard.sagernet.org", "http://dash.sing-box.app", "http://192.168.31.111"],
-      "access_control_allow_private_network": true
+      "access_control_allow_origin": ["http://sing-box-dashboard.sagernet.org", "http://dash.sing-box.app"],
+      "access_control_allow_private_network": true,
+      "dashboard": {
+        "enabled": true,
+        "download_url": "https://github.com/duakc/duakboard/releases/download/v0.1.2/duakboard.zip"
+      }
     }
   ],
   "inbounds": [
