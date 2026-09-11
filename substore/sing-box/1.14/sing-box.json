@@ -136,7 +136,6 @@
       "listen": "0.0.0.0",
       "listen_port": 9091,
       "secret": "",
-      "access_control_allow_origin": ["http://sing-box-dashboard.sagernet.org", "http://dash.sing-box.app", "http://192.168.31.111"],
       "access_control_allow_private_network": true,
       "dashboard": {
         "enabled": true,
