@@ -1,0 +1,287 @@
+# ============================================================
+# honk config.dae
+# 由 FlClash / Mihomo override JS 转换而来
+# ============================================================
+# 与 Mihomo 的差异（honk/dae 引擎限制）：
+#   1) 不支持 fake-ip。DNS 使用真实上游。
+#   2) 不支持 rule-provider。Spotify/Telegram 用 geosite 分类替代。
+#   3) 不支持图标(icon)字段，已省略。
+#   4) 策略组的 "proxies" 列表改为 honk 的 filter/group() 语法。
+#   5) fake-ip-filter 中的本地域名改为 DNS 请求走 asis。
+#   6) honk 按声明顺序解析组依赖：被引用的组必须先声明。
+
+global {
+    wan_interface: auto
+    lan_interface: br-lan
+    data_dir: '/etc/honk/data'
+    log_level: info
+    dial_mode: domain++
+    auto_config_kernel_parameter: true
+    bootstrap_resolver: '223.5.5.5:53'
+    nfqueue_enable: true
+}
+
+# 订阅：节点来自这里，策略组按节点名筛选
+# 注意：该站按 UA 返回不同格式，honk/1.0 返回紧凑的分享链接列表，拉取快且稳定。
+subscription {
+    # 订阅地址含访问令牌，已隐去；部署前替换为你自己的订阅链接。
+    sub: 'https://example.invalid/api/v1/pq/REDACTED' {
+        interval: 3600s
+        ua: 'honk/1.0'
+    }
+}
+
+group {
+    # ---------------- 地区策略组 (url-test) ----------------
+    # 必须先声明：Region / Connect / Final / 应用组都会引用它们。
+    JP {
+        filter: name(regex: '(?i)(?:🇯🇵|日本|东京|東京|大阪|Japan|Tokyo|Osaka|(?:^|[^A-Za-z])(?:JP|JPN)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+    KR {
+        filter: name(regex: '(?i)(?:🇰🇷|韩国|韓國|南韩|南韓|首尔|首爾|South[ -]?Korea|Seoul|(?:^|[^A-Za-z])(?:KR|KOR)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+    TW {
+        filter: name(regex: '(?i)(?:🇹🇼|台湾|台灣|台北|臺北|高雄|Taiwan|Taipei|Kaohsiung|(?:^|[^A-Za-z])(?:TW|TWN)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+    SG {
+        filter: name(regex: '(?i)(?:🇸🇬|新加坡|狮城|獅城|Singapore|(?:^|[^A-Za-z])(?:SG|SGP)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+    UK {
+        filter: name(regex: '(?i)(?:🇬🇧|英国|英國|伦敦|倫敦|曼彻斯特|曼徹斯特|United[ -]?Kingdom|Great[ -]?Britain|England|London|Manchester|(?:^|[^A-Za-z])(?:UK|GB|GBR)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+    Turkey {
+        filter: name(regex: '(?i)(?:🇹🇷|土耳其|Türkiye|Turkey|伊斯坦布尔|伊斯坦堡|安卡拉|Istanbul|Ankara|(?:^|[^A-Za-z])(?:TR|TUR)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+    HK {
+        filter: name(regex: '(?i)(?:🇭🇰|香港|Hong[ -]?Kong|(?:^|[^A-Za-z])(?:HK|HKG)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+    US {
+        filter: name(regex: '(?i)(?:🇺🇸|美国|美國|纽约|紐約|洛杉矶|洛杉磯|西雅图|西雅圖|圣何塞|聖何塞|United[ -]?States|America|New[ -]?York|Los[ -]?Angeles|Seattle|San[ -]?Jose|(?:^|[^A-Za-z])(?:US|USA)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+    Mainland {
+        filter: name(regex: '(?i)(?:🇨🇳|中国|中國|大陆|大陸|内地|內地|China|广州|廣州|杭州|济南|濟南|鞍山|上海|北京|东莞|東莞|深圳|徐州|南京|武汉|武漢|成都|重庆|重慶|Guangzhou|Hangzhou|Shanghai|Beijing|Shenzhen|Nanjing|Wuhan|Chengdu|Chongqing|(?:^|[^A-Za-z])(?:CN|CHN)(?:$|[^A-Za-z]))') && !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+
+    # ---------------- 通用策略组 ----------------
+    # Mihomo: Auto = url-test(所有非大陆可用节点)
+    Auto {
+        filter: !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网') && !name(regex: '(?i)国际|国内|回国|🇨🇳|中国|中國|大陆|大陸|内地|內地|China|(?:^|[^A-Za-z])(?:CN|CHN)(?:$|[^A-Za-z])')
+        policy: urltest
+        check_url: 'http://www.gstatic.com/generate_204'
+        final: direct
+    }
+
+    # Mihomo: Manual = select(所有可用节点)
+    Manual {
+        filter: !name(regex: '(?i)x4|x5|x10|17|套餐|剩余|订阅|com|机场|4倍|x1\.5|官网')
+        policy: selector
+        final: direct
+    }
+
+    # Mihomo: Region = select(所有地区组)
+    Region {
+        filter: group('JP')
+        filter: group('KR')
+        filter: group('TW')
+        filter: group('SG')
+        filter: group('UK')
+        filter: group('Turkey')
+        filter: group('HK')
+        filter: group('US')
+        filter: group('Mainland')
+        policy: selector
+        default: 'JP'
+        final: direct
+    }
+
+    # Mihomo: Connect = select(Region, Manual, Auto, DIRECT)
+    Connect {
+        filter: group('Region')
+        filter: group('Manual')
+        filter: group('Auto')
+        filter: name('direct')
+        policy: selector
+        default: 'Auto'
+        final: direct
+    }
+
+    # Mihomo: Final = select(Connect, DIRECT)
+    Final {
+        filter: group('Connect')
+        filter: name('direct')
+        policy: selector
+        default: 'Connect'
+        final: direct
+    }
+
+    # ---------------- 应用策略组 ----------------
+    # Mihomo: select(Connect, 所有地区组)
+    OpenAI {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    Telegram {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    Steam {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    TikTok {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    Microsoft {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    Youtube {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    Google {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    Pikpak {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    Porn {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+    Spotify {
+        filter: group('Connect')
+        policy: selector
+        default: 'Connect'
+        final: Connect
+    }
+}
+
+# ---------------- DNS ----------------
+# 统一使用国内 DoH。dial_mode: domain++ 时被代理域名由节点远端解析，
+# 本地 DNS 的污染结果不影响代理连接；直连域名用国内解析最准确。
+dns {
+    ipversion_prefer: 4
+    upstream {
+        domestic: 'https://dns.alidns.com/dns-query' -> direct
+        default: 'udp://223.5.5.5:53' -> direct
+    }
+    routing {
+        request {
+            # fake-ip-filter 中的本地域名：交给原 DNS 目的地（dnsmasq）
+            qname(suffix: lan) -> asis
+            qname(suffix: local) -> asis
+            qname(suffix: msftconnecttest.com) -> asis
+            qname(suffix: msftncsi.com) -> asis
+            qname(full: localhost.ptlogin2.qq.com) -> asis
+            qname(full: localhost.sec.qq.com) -> asis
+            qname(full: localhost.work.weixin.qq.com) -> asis
+
+            fallback: domestic
+        }
+        response {
+            fallback: accept
+        }
+    }
+}
+
+# ---------------- 路由规则 ----------------
+# 顺序与 Mihomo 规则列表一致；first match wins。
+routing {
+    domain(full: ipv6.msftconnecttest.com) -> direct
+    domain(full: steamcdn-a.akamaihd.net) -> direct
+    domain(suffix: steampowered.com) -> direct
+    domain(suffix: steamstatic.com) -> direct
+    pname(Client-Win64-Shipping.exe) -> direct
+    pname(O+Connect.exe) -> direct
+    domain(suffix: xn--ngstr-lra8j.com) -> Connect
+    domain(suffix: services.googleapis.cn) -> Connect
+    domain(suffix: apm.yun.hihonor.com) -> block
+    domain(keyword: ddys) -> direct
+    domain(keyword: zhuiyingmao) -> direct
+    domain(suffix: iyf.tv) -> direct
+    domain(keyword: yinghua) -> direct
+    domain(suffix: qianxin.com) -> block
+    domain(keyword: ptt) -> TW
+    domain(suffix: dcard.tw) -> TW
+    domain(suffix: mypikpak.com) -> Pikpak
+    domain(suffix: mypikpak.net) -> direct
+    domain(keyword: sijishe) -> Connect
+    domain(geosite: geolocation-cn) -> direct
+    domain(geosite: spotify) -> Spotify
+    domain(geosite: telegram) -> Telegram
+    domain(geosite: openai) -> OpenAI
+    domain(geosite: tiktok) -> TikTok
+    domain(geosite: category-porn) -> Porn
+    domain(geosite: google) -> Google
+    domain(geosite: youtube) -> Youtube
+    domain(geosite: tld-cn) -> direct
+    domain(geosite: private) -> direct
+    # 国内 IP 直连：QQ/微信/游戏等纯 IP 连接没有域名可嗅探，必须靠 dip 判断，
+    # 否则会被 fallback 送到国外节点，导致 QQ 掉线。
+    # 注意：必须放在所有 domain 规则之后。国内 DNS 对被墙域名返回的污染 IP
+    # 若恰好是 CN IP，会被误判直连；因此常见被墙服务（google/youtube/telegram/
+    # openai/tiktok/spotify 等）已在上方用 geosite 规则先匹配走代理。
+    dip(geoip: cn) -> direct
+    dip(geoip: private) -> direct
+    fallback: Final
+}
+
+# ---------------- doona 面板 ----------------
+experimental {
+    native_api {
+        enabled: true
+        listen: '0.0.0.0:9527'
+        password_auth: true
+        config_write: true
+        ui: 'embedded-lite'
+    }
+}
