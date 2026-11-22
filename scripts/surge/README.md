@@ -29,18 +29,20 @@
 
 本目录文件已放在 GitHub：`https://github.com/hanff8/SoftwareProfiles/tree/master/scripts/surge`，模块里的脚本路径用的是 raw 链接，可以直接从仓库安装。
 
-方式 A（推荐，模块）：安装模块 URL `https://raw.githubusercontent.com/hanff8/SoftwareProfiles/master/scripts/surge/kuro-signin.sgmodule`，启用时 `accounts` 参数填 `[{"name":"主号"}]`（名字随便起，两个脚本都认这个值）。模块已包含 MITM 和两行脚本配置。同一个 `accounts` 同时传给两个脚本：抓取脚本取第一个 `name` 作为当前抓的账号，签到脚本会签列表里的所有账号。
+方式 A（推荐，模块，零配置）：安装模块 URL `https://raw.githubusercontent.com/hanff8/SoftwareProfiles/master/scripts/surge/kuro-signin.sgmodule`，**启用时无需填写任何参数**。模块已包含 MITM 和两行脚本配置。装完打开库街区 App 抓一次凭证，之后就每天自动签。
 
-方式 B（手动写配置）：
+方式 B（手动写配置，同样零配置）：
 
 ```ini
 [MITM]
 hostname = api.kurobbs.com
 
 [Script]
-kuro.capture = type=http-request,pattern=^https://api\.kurobbs\.com/,script-path=kuro-capture.js,argument=主号
-kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=120,argument=[{"name":"主号"}]
+kuro.capture = type=http-request,pattern=^https://api\.kurobbs\.com/,script-path=kuro-capture.js
+kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=120
 ```
+
+两个脚本都不写 `argument`：抓取脚本把凭证存到默认账号，签到脚本自动签到所有抓到的账号。
 
 `cronexp="0 8 * * *"` 表示每天 08:00 执行。Surge 也支持在 UI 里手动运行 cron 脚本来测试。
 
@@ -53,18 +55,18 @@ kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=1
 
 > token 会过期。过期后重新打开 App 触发一次抓取即可，无需改任何配置。
 
-## 账号参数（argument）
+## 高级：多账号 / 精细控制（可选）
 
-两个脚本的 `argument` 用同一个"别名"对应账号：
+默认零配置就能用。如果你想区分多个账号、或只签某几个、关掉论坛任务，才需要用到 `argument`。
 
-- 抓凭证脚本：`argument=主号`（一个脚本实例对应一个账号；多账号就写多行，每行一个别名）
-- 签到脚本：`argument` 留空 → 自动签到所有抓到的账号；或者写 JSON 数组来精细控制
+- 抓凭证脚本 `argument`：写账号别名，比如 `argument=主号`。同一台设备切号抓凭证时，脚本会按 token 自动识别并更新对应账号；想新增一个账号，把别名改成 `小号` 再抓一次即可。
+- 签到脚本 `argument`：留空 → 签所有抓到的账号；写 JSON 数组 → 只签指定账号并精细控制。
 
 签到脚本的 JSON 配置项：
 
 | 字段 | 说明 |
 | --- | --- |
-| `name` | 账号别名，必须和抓凭证脚本的 `argument` 一致 |
+| `name` | 账号别名，对应抓凭证时用的别名 |
 | `enable` | 是否启用，默认 `true` |
 | `game` | `all`（默认）/ `wuwa` / `pgr` / `none` |
 | `forum` | 是否做论坛任务，默认 `true` |
@@ -72,25 +74,14 @@ kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=1
 | `token` | 可选。手填后优先于抓到的凭证 |
 | `games` | 可选，手动指定角色 ID：`{"wuwa":{"roleId":"..."},"pgr":{"roleId":"..."}}` |
 
-几个常见写法：
+示例（只签主号，且关掉论坛任务）：
 
 ```ini
-# 单账号，全自动（两个脚本都用同一个别名，或都不填）
 kuro.capture = type=http-request,pattern=^https://api\.kurobbs\.com/,script-path=kuro-capture.js,argument=主号
-kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=120
-
-# 多账号：抓取脚本只写一行，签到脚本不填参数就签所有抓到的账号
-kuro.capture = type=http-request,pattern=^https://api\.kurobbs\.com/,script-path=kuro-capture.js,argument=主号
-kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=120
-
-# 多账号，但只签主号且关闭论坛任务
-kuro.capture = type=http-request,pattern=^https://api\.kurobbs\.com/,script-path=kuro-capture.js,argument=[{"name":"主号"}]
 kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=120,argument=[{"name":"主号","forum":false}]
 ```
 
-抓取脚本的 `argument` 既能写别名（如 `主号`），也能写和签到脚本一样的 JSON 数组（会取其中的 `name`），所以安装模块时把 `accounts` 填成 `[{"name":"主号"}]` 就行，两个脚本都认。
-
-> 注意：Surge 里同一个 pattern 只会执行第一个匹配的 http-request 脚本，所以抓取脚本只写一行。脚本按 token 自动识别账号：同一别名再次抓取会覆盖旧凭证；App 切号后 token 变了，脚本会自动按 token 找到对应账号并更新。想新增账号，在 App 里切到该账号触发一次抓取，然后给抓取脚本换个别名（如 `argument=小号`）再抓一次即可。
+> 注意：Surge 里同一个 pattern 只会执行第一个匹配的 http-request 脚本，所以抓取脚本只写一行。脚本按 token 自动识别账号：同一别名再次抓取会覆盖旧凭证；App 切号后 token 变了，会自动按 token 找到对应账号更新，不用改配置。
 
 ## 行为说明
 
