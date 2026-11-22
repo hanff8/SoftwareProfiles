@@ -90,30 +90,29 @@ function pickCredential(headers) {
   return { token: token, devCode: devCode, distinctId: distinctId, cookie: cookie };
 }
 
-// argument 可以是别名字符串，也可以是签到脚本用的 JSON（取其中的 name/alias）
-function parseAliasArg(raw) {
-  if (typeof raw !== 'string' || !raw.trim()) return '';
-  const text = raw.trim();
-  let parsed = null;
-  try {
-    parsed = JSON.parse(text);
-  } catch (e) {
-    return text; // 普通字符串，直接当别名
-  }
-  if (Array.isArray(parsed)) parsed = parsed[0];
-  if (parsed && typeof parsed === 'object') {
-    return String(parsed.name || parsed.alias || parsed.id || '').trim();
-  }
-  return String(parsed || '').trim();
-}
-
 function getAlias() {
-  const alias = parseAliasArg($argument);
-  // 模块开关传来的 true 不是别名
-  if (!alias || alias === 'true' || alias === 'false' || alias === 'on' || alias === 'off') {
+  // 防御：任何异常都回退到默认别名，绝不让抓取因为参数问题挂掉
+  try {
+    const arg = typeof $argument === 'string' ? $argument : '';
+    if (!arg || arg === 'true' || arg === 'false' || arg === 'on' || arg === 'off') {
+      return DEFAULT_ALIAS;
+    }
+    // 简单别名（不含 { 或 [）直接用
+    if (arg.charAt(0) !== '{' && arg.charAt(0) !== '[') {
+      return arg.trim() || DEFAULT_ALIAS;
+    }
+    // JSON 形式：取 name/alias
+    const parsed = JSON.parse(arg);
+    const first = Array.isArray(parsed) ? parsed[0] : parsed;
+    if (first && typeof first === 'object') {
+      const name = first.name || first.alias || first.id;
+      return name ? String(name) : DEFAULT_ALIAS;
+    }
+    return DEFAULT_ALIAS;
+  } catch (e) {
+    console.log('[KuroCapture] getAlias 回退到默认: ' + e.message);
     return DEFAULT_ALIAS;
   }
-  return alias;
 }
 
 // token 变了但别名没变时，按 token 匹配已有账号，自动更新它的凭证
