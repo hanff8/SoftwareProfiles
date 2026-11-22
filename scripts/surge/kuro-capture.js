@@ -124,6 +124,13 @@ function resolveAlias(alias, token, store) {
   return alias || DEFAULT_ALIAS;
 }
 
+// token 脱敏，只在通知里显示前后各几位
+function maskToken(token) {
+  const t = String(token || '');
+  if (t.length <= 8) return '****';
+  return t.slice(0, 4) + '…' + t.slice(-4);
+}
+
 function main() {
   const headers = $request.headers;
   const cred = pickCredential(headers);
@@ -137,8 +144,18 @@ function main() {
 
   const store = loadStore();
   const alias = resolveAlias(getAlias(), cred.token, store);
-  const entry = store.accounts[alias] || {};
+  const prev = store.accounts[alias] || {};
+  const isNew = !prev.token;
+  const tokenChanged = !!prev.token && prev.token !== cred.token;
 
+  // 同一 token 的后续请求：静默放行，不重写存储也不刷通知
+  if (!isNew && !tokenChanged && prev.devCode === cred.devCode &&
+      prev.distinctId === cred.distinctId) {
+    $done({});
+    return;
+  }
+
+  const entry = prev;
   entry.token = cred.token;
   if (cred.devCode) entry.devCode = cred.devCode;
   if (cred.distinctId) entry.distinctId = cred.distinctId;
@@ -169,11 +186,14 @@ function main() {
 
   if (saveStore(store)) {
     console.log('[KuroCapture] 已保存账号 ' + alias + ' 的凭证');
-    $notification.post(
-      '库街区凭证已抓取',
-      '账号：' + alias,
-      'token 已更新，签到脚本可以直接使用了'
-    );
+    // 只在首次抓取或 token 变化时通知，避免 App 每个请求都刷一条
+    if (isNew || tokenChanged) {
+      $notification.post(
+        '库街区凭证已抓取',
+        '账号：' + alias + (tokenChanged ? '（已更新）' : ''),
+        'token ' + maskToken(cred.token) + ' 已保存，签到脚本可以直接使用了'
+      );
+    }
   } else {
     console.log('[KuroCapture] 写入存储失败');
   }
