@@ -1,0 +1,20 @@
+table inet sing_box {
+	chain prerouting {
+		type filter hook prerouting priority mangle; policy accept;
+
+		# 本机回环、tailscale 接口不接管
+		iifname { "lo", "tailscale0" } return
+
+		# LAN DNS（53 端口）劫持到 sing-box，由 fakeip 返回 198.18.0.0/15
+		meta l4proto { tcp, udp } th dport 53 tproxy to :7895 meta mark set 1 accept
+
+		# 目标是路由器自身地址（LuCI/SSH/DNS/面板）不接管
+		fib daddr type local return
+
+		# 私有/保留地址直连（含 LAN、CGNAT、组播、广播）
+		ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16, 224.0.0.0/4, 240.0.0.0/4 } return
+
+		# 其余 TCP/UDP 交给 sing-box 的 TPROXY 入口
+		meta l4proto { tcp, udp } tproxy to :7895 meta mark set 1 accept
+	}
+}
