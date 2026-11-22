@@ -1,0 +1,10 @@
+#!name=库街区自动签到（抓凭证+签到）
+#!desc=先开启 MITM 并用 kuro-capture.js 抓取 App 凭证，再由 kuro-signin.js 定时签到。
+#!arguments=accounts
+
+[MITM]
+hostname = api.kurobbs.com
+
+[Script]
+kuro.capture = type=http-request,pattern=^https://api\.kurobbs\.com/,script-path=https://raw.githubusercontent.com/hanff8/SoftwareProfiles/master/scripts/surge/kuro-capture.js,argument={{{accounts}}}
+kuro.signin = type=cron,cronexp="0 8 * * *",script-path=https://raw.githubusercontent.com/hanff8/SoftwareProfiles/master/scripts/surge/kuro-signin.js,timeout=120,argument={{{accounts}}}
