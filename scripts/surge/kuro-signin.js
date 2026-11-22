@@ -279,7 +279,9 @@ function normalizeAccount(raw, index) {
 }
 
 function loadAccounts() {
-  const arg = getRawArgument();
+  let arg = getRawArgument();
+  // 模块开关传来的 true/on 相当于没指定账号，签所有抓到的
+  if (arg === 'true' || arg === 'on') arg = '';
   const captured = loadCaptureStore();
   const accounts = [];
 
@@ -744,9 +746,17 @@ async function signInAccountRetry(acc, state, saved) {
 // ---------- 入口 ----------
 
 async function main() {
+  // 参数 false/off/0 表示禁用签到（也不弹通知）
+  const rawArg = typeof $argument === 'string' ? $argument.trim().toLowerCase() : '';
+  if (rawArg === 'false' || rawArg === 'off' || rawArg === '0') {
+    console.log('[KuroSignIn] 已通过参数禁用，跳过');
+    $done();
+    return;
+  }
+
   const accounts = loadAccounts();
   if (!accounts.length) {
-    $notification.post('库街区签到', '未配置账号', '请在 [Script] 的 argument 中填写账号 JSON');
+    $notification.post('库街区签到', '未配置账号', '请先运行抓凭证脚本（capture）');
     $done();
     return;
   }

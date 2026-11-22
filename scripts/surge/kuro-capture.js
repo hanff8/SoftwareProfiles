@@ -108,7 +108,12 @@ function parseAliasArg(raw) {
 }
 
 function getAlias() {
-  return parseAliasArg($argument) || DEFAULT_ALIAS;
+  const alias = parseAliasArg($argument);
+  // 模块开关传来的 true 不是别名
+  if (!alias || alias === 'true' || alias === 'false' || alias === 'on' || alias === 'off') {
+    return DEFAULT_ALIAS;
+  }
+  return alias;
 }
 
 // token 变了但别名没变时，按 token 匹配已有账号，自动更新它的凭证
@@ -131,7 +136,17 @@ function maskToken(token) {
   return t.slice(0, 4) + '…' + t.slice(-4);
 }
 
+// 参数 false/off/0 表示禁用抓取
+function isDisabled() {
+  const a = typeof $argument === 'string' ? $argument.trim().toLowerCase() : '';
+  return a === 'false' || a === 'off' || a === '0';
+}
+
 function main() {
+  if (isDisabled()) {
+    $done({});
+    return;
+  }
   const headers = $request.headers;
   const cred = pickCredential(headers);
 

@@ -29,9 +29,20 @@
 
 本目录文件已放在 GitHub：`https://github.com/hanff8/SoftwareProfiles/tree/master/scripts/surge`，模块里的脚本路径用的是 raw 链接，可以直接从仓库安装。
 
-方式 A（推荐，模块，零配置）：安装模块 URL `https://raw.githubusercontent.com/hanff8/SoftwareProfiles/master/scripts/surge/kuro-signin.sgmodule`，**启用时无需填写任何参数**。模块已包含 MITM 和两行脚本配置。装完打开库街区 App 抓一次凭证，之后就每天自动签。
+方式 A（推荐，模块）：安装模块 URL `https://raw.githubusercontent.com/hanff8/SoftwareProfiles/master/scripts/surge/kuro-signin.sgmodule`。模块参数都有默认值，**全部留默认就能用**。装完打开库街区 App 抓一次凭证，之后就每天自动签。
 
-方式 B（手动写配置，同样零配置）：
+模块参数说明（都有默认值，按需改）：
+
+| 参数 | 默认值 | 说明 |
+| --- | --- | --- |
+| `enable_capture` | `true` | 抓凭证脚本开关，填 `false` 关闭抓取 |
+| `enable_signin` | `true` | 定时签到开关，填 `false` 关闭签到 |
+| `signin_hour` | `8` | 每天签到的小时（0-23） |
+| `signin_minute` | `0` | 每天签到的分钟（0-59） |
+
+比如想在每天 12:30 签到、并暂时关闭抓凭证，就把参数改成 `enable_capture=false,signin_hour=12,signin_minute=30`。
+
+方式 B（手动写配置）：
 
 ```ini
 [MITM]
@@ -42,9 +53,7 @@ kuro.capture = type=http-request,pattern=^https://api\.kurobbs\.com/,script-path
 kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=120
 ```
 
-两个脚本都不写 `argument`：抓取脚本把凭证存到默认账号，签到脚本自动签到所有抓到的账号。
-
-`cronexp="0 8 * * *"` 表示每天 08:00 执行。Surge 也支持在 UI 里手动运行 cron 脚本来测试。
+手动写配置时：要禁用某个脚本，在该行加 `argument=false`；要改签到时间，改 `cronexp` 里的小时和分钟。比如 `cronexp="30 12 * * *"` 就是每天 12:30。Surge 也支持在 UI 里手动运行 cron 脚本来测试。
 
 ## 使用步骤
 
