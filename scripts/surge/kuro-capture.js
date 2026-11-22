@@ -12,12 +12,12 @@
  * [MITM]
  * hostname = api.kurobbs.com
  *
- * argument 是账号别名（可选，默认 default）。同一别名再次抓取会覆盖旧凭证；
- * 若 token 变了但别名没变，脚本自动按 token 匹配并更新对应账号，避免过期后还要改配置。
+ * 账号别名：优先用 argument 指定的名字；没指定时从 token 派生一个稳定短标识
+ * （如 库街区_A1B2），同一账号始终是同一个名字，不同账号互不混淆。
+ * 每次真正写入凭证都会发 Surge 通知（同账号 30 秒内节流，避免刷屏）。
  */
 
 const STORE_KEY = 'kuro_capture_store';
-const DEFAULT_ALIAS = 'default';
 
 // 从请求头里找字段（大小写不敏感；也支持 full-header-mode 的数组形式）
 function getHeader(headers, name) {
@@ -90,42 +90,51 @@ function pickCredential(headers) {
   return { token: token, devCode: devCode, distinctId: distinctId, cookie: cookie };
 }
 
-function getAlias() {
-  // 防御：任何异常都回退到默认别名，绝不让抓取因为参数问题挂掉
-  try {
-    const arg = typeof $argument === 'string' ? $argument : '';
-    if (!arg || arg === 'true' || arg === 'false' || arg === 'on' || arg === 'off') {
-      return DEFAULT_ALIAS;
-    }
-    // 简单别名（不含 { 或 [）直接用
-    if (arg.charAt(0) !== '{' && arg.charAt(0) !== '[') {
-      return arg.trim() || DEFAULT_ALIAS;
-    }
-    // JSON 形式：取 name/alias
-    const parsed = JSON.parse(arg);
-    const first = Array.isArray(parsed) ? parsed[0] : parsed;
-    if (first && typeof first === 'object') {
-      const name = first.name || first.alias || first.id;
-      return name ? String(name) : DEFAULT_ALIAS;
-    }
-    return DEFAULT_ALIAS;
-  } catch (e) {
-    console.log('[KuroCapture] getAlias 回退到默认: ' + e.message);
-    return DEFAULT_ALIAS;
+// 简单稳定哈希（JSC 引擎无 crypto，自己实现一个）
+function shortHash(str) {
+  let h = 5381;
+  const text = String(str || '');
+  for (let i = 0; i < text.length; i++) {
+    h = ((h << 5) + h + text.charCodeAt(i)) >>> 0; // h * 33 + c
   }
+  return h.toString(16).toUpperCase().slice(-6).padStart(6, '0');
+}
+
+// 从 token 派生稳定账号标识
+function aliasFromToken(token) {
+  return '库街区_' + shortHash(token).slice(0, 4);
+}
+
+function getAlias(token) {
+  // 显式指定的别名优先；否则从 token 派生一个稳定标识
+  try {
+    const arg = typeof $argument === 'string' ? $argument.trim() : '';
+    if (arg && arg !== 'true' && arg !== 'false' && arg !== 'on' && arg !== 'off') {
+      if (arg.charAt(0) !== '{' && arg.charAt(0) !== '[') return arg;
+      const parsed = JSON.parse(arg);
+      const first = Array.isArray(parsed) ? parsed[0] : parsed;
+      if (first && typeof first === 'object') {
+        const name = first.name || first.alias || first.id;
+        if (name) return String(name);
+      }
+    }
+  } catch (e) {
+    console.log('[KuroCapture] 别名解析回退: ' + e.message);
+  }
+  return aliasFromToken(token);
 }
 
 // token 变了但别名没变时，按 token 匹配已有账号，自动更新它的凭证
 function resolveAlias(alias, token, store) {
   const accounts = store.accounts;
   if (alias && accounts[alias]) return alias;
-  if (!token) return alias || DEFAULT_ALIAS;
+  if (!token) return alias || 'unknown';
 
   const keys = Object.keys(accounts);
   for (let i = 0; i < keys.length; i++) {
     if (accounts[keys[i]] && accounts[keys[i]].token === token) return keys[i];
   }
-  return alias || DEFAULT_ALIAS;
+  return alias || 'unknown';
 }
 
 // token 脱敏，只在通知里显示前后各几位
@@ -157,17 +166,9 @@ function main() {
   }
 
   const store = loadStore();
-  const alias = resolveAlias(getAlias(), cred.token, store);
+  const alias = resolveAlias(getAlias(cred.token), cred.token, store);
   const prev = store.accounts[alias] || {};
-  const isNew = !prev.token;
   const tokenChanged = !!prev.token && prev.token !== cred.token;
-
-  // 同一 token 的后续请求：静默放行，不重写存储也不刷通知
-  if (!isNew && !tokenChanged && prev.devCode === cred.devCode &&
-      prev.distinctId === cred.distinctId) {
-    $done({});
-    return;
-  }
 
   const entry = prev;
   entry.token = cred.token;
@@ -200,8 +201,12 @@ function main() {
 
   if (saveStore(store)) {
     console.log('[KuroCapture] 已保存账号 ' + alias + ' 的凭证');
-    // 只在首次抓取或 token 变化时通知，避免 App 每个请求都刷一条
-    if (isNew || tokenChanged) {
+    // 每次真正写入都通知，但同一账号 30 秒内节流，避免 App 连续请求刷屏
+    const now = Date.now();
+    const lastNotify = Number(entry.lastNotifyAt || 0);
+    if (now - lastNotify > 30000) {
+      entry.lastNotifyAt = now;
+      saveStore(store); // 把通知时间也持久化
       $notification.post(
         '库街区凭证已抓取',
         '账号：' + alias + (tokenChanged ? '（已更新）' : ''),

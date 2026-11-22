@@ -59,7 +59,7 @@ kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=1
 
 1. 开启 MITM，并安装 Surge 描述文件（macOS 还需要在系统里信任 Surge 证书）。
 2. 打开库街区 App，随便点几个页面（尤其是签到/个人中心），让 App 发出带凭证的 API 请求。
-3. 收到"库街区凭证已抓取"通知后，说明凭证已存好。
+3. 收到"库街区凭证已抓取"通知后，说明凭证已存好。通知里的账号名（如 `库街区_C1D5`）是从 token 派生的稳定标识，同一账号每次都一样；想改成好记的名字，给 capture 脚本设置 `argument=你的名字` 即可。
 4. 运行 `kuro.signin` 脚本测试签到；确认没问题后就让它每天定时跑。
 
 > token 会过期。过期后重新打开 App 触发一次抓取即可，无需改任何配置。
@@ -90,7 +90,7 @@ kuro.capture = type=http-request,pattern=^https://api\.kurobbs\.com/,script-path
 kuro.signin = type=cron,cronexp="0 8 * * *",script-path=kuro-signin.js,timeout=120,argument=[{"name":"主号","forum":false}]
 ```
 
-> 注意：Surge 里同一个 pattern 只会执行第一个匹配的 http-request 脚本，所以抓取脚本只写一行。脚本按 token 自动识别账号：同一别名再次抓取会覆盖旧凭证；App 切号后 token 变了，会自动按 token 找到对应账号更新，不用改配置。
+> 注意：Surge 里同一个 pattern 只会执行第一个匹配的 http-request 脚本，所以抓取脚本只写一行。默认账号名从 token 派生（稳定且唯一）；显式设了别名时以别名为准。App 切号后新 token 会派生出新账号，互不混淆。每次真正写入凭证都会发通知，同一账号 30 秒内只弹一次，避免刷屏。
 
 ## 行为说明
 
